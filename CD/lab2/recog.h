@@ -127,6 +127,55 @@ Lex** is_operator(char* buffer, int line_num, int size) {
 
 }
 
+Lex** is_special(char* buffer, int line_num, int size) {
+
+	Lex** lex = (Lex**) malloc(sizeof(Lex*) * 20);
+
+	for(int i = 0; i < 20; i++) {
+		lex[i] = NULL;
+	}
+
+	int k = 0;
+
+	int offset = 0;
+	int start = 0;
+
+	for(int i = 0; i < size; i++) {
+
+		offset++;
+
+		if(buffer[i] == ';') {
+			create_lexeme(line_num, offset, "SPECIAL", ";");
+			
+
+		}
+
+		if(buffer[i] == '<') {
+
+			if(buffer[i + 1] == '=') {
+				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<=");
+
+			} else {
+				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<");				
+			}
+		}
+
+		if(buffer[i] == '>') {
+
+			if(buffer[i + 1] == '=') {
+				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<=");
+
+			} else {
+				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<");				
+			}
+		}
+
+	}
+
+	return lex;
+
+}
+
 Lex* check_keyword(char* str, char** KEYS, size_t KEY_LEN, int line_num) {
 
 	int col = -1;
