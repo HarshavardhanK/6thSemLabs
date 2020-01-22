@@ -7,39 +7,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-struct lexeme {
-
-	int row;
-	int col;
-	char* name;
-	char* item_name;
-
-};
-
-typedef struct lexeme Lex;
-
-void print_lexeme(Lex lex) {
-
-	printf("<%s, %d, %d, %s>\n", lex.item_name, lex.row, lex.col, lex.name);
-}
-
-Lex* create_lexeme(int row, int col, char* name, char* item) {
-
-	Lex* lex = (Lex*) malloc(sizeof(Lex));
-
-	lex->row = row;
-	lex->col = col;
-
-	lex->item_name = (char*) malloc(sizeof(char) * 10);
-	lex->name = (char*) malloc(sizeof(char) * 10);
-
-	strcpy(lex->name, name);
-	strcpy(lex->item_name, item);
-
-	print_lexeme(*lex);
-
-	return lex;
-}
+#include "../includes/token.h"
 
 char** KEYWORDS() {
 
@@ -204,6 +172,8 @@ Lex* check_keyword(char* str, char** KEYS, size_t KEY_LEN, int line_num) {
 
 	else
 		return NULL;
+
+	//print_lexeme(*lex);
 
 	return lex;
 }

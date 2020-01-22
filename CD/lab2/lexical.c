@@ -1,10 +1,9 @@
 #include "recog.h"
+#include "../includes/token_store.h"
 
 void test_lex() {
 
 	char** KEYS = KEYWORDS();
-
-
 	FILE* fp = fopen("./recog.h", "r");
 
 	char* line = (char*) malloc(sizeof(char) * 300);
@@ -16,11 +15,13 @@ void test_lex() {
 
 	while((read = getline(&line, &len, fp)) != -1) {
 		line_num++;
-
 		Lex *lex = check_keyword(line, KEYS, 5, line_num);
+		//print_lexeme(*lex);
+		//insert_token();
 
-		if(lex)
-			print_lexeme(*lex);
+		if(lex) {
+			insert_token(lex);
+		}
 
 	}
 
@@ -63,8 +64,15 @@ void test_operators() {
 int main() {
 
 	test_lex();
+	//test_operators();
 
-	test_operators();
+	//sort_tokens();
+	//print_tokens();
+
+	//
+
+	printf("Reading alll tokens\n");
+	read_token();
 
 	return 0;
 	
