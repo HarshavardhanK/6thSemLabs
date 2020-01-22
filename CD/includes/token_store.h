@@ -1,7 +1,7 @@
 #ifndef TOKEN_STORE_H
 #define TOKEN_STORE_H
 
-#define FILENAME "./token_store.bin"
+#define FILENAME "./token_store.dat"
 
 #include "token.h"
 
@@ -11,9 +11,9 @@ void insert_token(Lex* token) {
 
     FILE* file = NULL;
     
-    if((file = fopen(FILENAME, "wb+")) != NULL) {
+    if((file = fopen(FILENAME, "ab")) != NULL) {
 
-        fseek(file, INSERT_INDEX * sizeof(Lex), SEEK_SET);
+        //fseek(file, INSERT_INDEX * sizeof(Lex), SEEK_SET);
         //print_lexeme(*token);
         fwrite(token, sizeof(Lex), 1, file);
 
@@ -25,7 +25,7 @@ void insert_token(Lex* token) {
 }
 
 
-int GET_INDEX = 0;
+int GET_INDEX = 1;
 
  Lex* read_token() {
 
@@ -33,9 +33,11 @@ int GET_INDEX = 0;
 
     if((file = fopen(FILENAME, "rb")) != NULL) {
 
-        Lex* lex;// = make_lex();
+        printf("Reading..\n");
 
-        //fseek(file, GET_INDEX * sizeof(Lex), SEEK_SET);
+        Lex* lex = make_lex();
+
+        fseek(file, GET_INDEX * sizeof(Lex), SEEK_SET);
         fread(lex, sizeof(Lex), 1, file);
 
         print_lexeme(*lex);
@@ -49,7 +51,6 @@ int GET_INDEX = 0;
     } 
 
     return NULL;
-
     
 }
 

@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+//#include "definitions"
+
 struct lexeme {
 
 	int row;
 	int col;
+
 	char* name;
 	char* item_name;
 
@@ -36,8 +39,8 @@ Lex* create_lexeme(int row, int col, char* name, char* item) {
 	strcpy(lex->name, name);
 	strcpy(lex->item_name, item);
 
-    //TOKEN_ARRAY[TOKEN_ARRAY_INDEX++] = lex;
-	//print_lexeme(*lex);
+	//lex->_token_type =
+
 	return lex;
 }
 
@@ -48,8 +51,6 @@ Lex* make_lex() {
 	lex->name = (char*) malloc(sizeof(char) * 10);
 
     return lex;
-
-
 }
 
 int compare_func(const void* tokenA, const void* tokenB) {

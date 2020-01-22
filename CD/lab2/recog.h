@@ -212,4 +212,133 @@ void check_string_literals(char* buffer, int line, int size) {
 	}
 }
 
+#include "../lab3/symbol_table.h"
+
+int has_function(char* buffer, int size) {
+
+	int is_function = 0;
+
+	int start = -1;
+	int end = -1;
+
+	for(int i = 0; i < size; i++) {
+
+		if(buffer[i] == '(') {
+			start = i;				
+		}
+
+		if(buffer[i] == ')') {
+			end = i;
+		}
+	}
+
+	//No. of arguments
+	int args = 0;
+
+	if(start != -1 && end != -1) {
+
+		for(int i = start; i < end; i++) {
+			if(buffer[i] == ',') {
+				args++;
+			}
+		}
+
+		if(!args) {
+
+		} else {
+
+			args++;
+			//printf("Args: %d\n", args);
+
+		}
+
+		int name_begin = start;
+
+		//Back track to the space character before the function name
+
+		while(buffer[name_begin] != ' ') {
+			name_begin--;
+		}
+
+		name_begin++;
+
+		char name[20]; int name_index = 0;
+
+		for(int i = name_begin; i < start; i++) {
+			name[name_index++] = buffer[i];
+		}
+
+		//Append null character to the end of the char array
+
+		name[name_index] = '\0';
+
+		//printf("Function name: %s\n", name);
+
+		//Find the return type of the function
+		//Go back to the beginning of the buffer, and read till the nearest space
+
+		int return_type_index = 0;
+		char return_type[10];
+
+		for(; buffer[return_type_index] != ' '; return_type_index++) {
+			return_type[return_type_index] = buffer[return_type_index];
+		}
+
+		return_type[return_type_index] = '\0';
+
+		//printf("Return type: %s\n", return_type);
+
+		//TODO: 1. CHECK IF RETURN TYPE IS VALID KEYWORD FROM THE LIST OF KEYWORDS
+		//TODO: 2. Get the names of the identifiers in arguments (Go between the commas)
+
+		STE entry = create_entry("", name, 0, args, return_type);
+
+		//mark is_function variable true to indicate the buffer had a function
+		//return that  value from the function. If it weren't a function
+		// the control would not have reached till here and is_function would be still 0
+		is_function = 1;
+
+		print_entry(entry);
+
+	} 
+
+	return is_function;
+}
+
+//LOGIC: If a buffer (holding all values of the read string till the semi-colon) is not a function
+//then the statement (along with the KEYWORD) must be an identifier;
+
+int is_variable(char* buffer, int size) {
+
+	for(int i = 0; i < size; i++) {
+		printf("%c", buffer[i]);
+	}
+	int space_index; //ONLY DECLARATION IS CONSIDERED IN THIS APPROACH
+
+	//TODO: SEARCH THE SYMBOL TABLE FOR THE IDENTIFIER
+
+	for(int i = 0; i < size; i++) {
+
+		if(buffer[i] == ' ') {
+			space_index = i;
+			break;
+		}
+	}
+
+	char identifier[20]; int identifier_index = 0;
+	char type[10];
+
+	//Get the return type of the variable. Return type index begins at 0 of the buffer, and
+	// goes till space_index
+	for(int i = 1; i < space_index; i++) {
+		type[i] = buffer[i];
+	}
+
+	for(int i = space_index; i < size; i++) {
+		identifier[identifier_index++] = buffer[i];
+	}
+
+	printf("\nType: %s\tName: %s\n", type, identifier);
+}
+
 #endif

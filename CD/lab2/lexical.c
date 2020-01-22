@@ -61,18 +61,40 @@ void test_operators() {
 
 }
 
+int test_func() {
+
+	int n = 0;
+	char c;
+
+	char buffer[200];
+
+	FILE* fp = fopen("./demo.c", "r");
+
+	while((c = fgetc(fp)) != EOF) {
+
+		if(c == ';') {
+
+			int func = has_function(buffer, n);
+
+			if(!func) {
+				is_variable(buffer, n);
+				//printf("Is variable\n");
+
+			}
+
+			memset(buffer, 0, sizeof(char) * n);
+			n = 0;
+
+		} else {
+			buffer[n++] = c;
+		}
+	}
+}
+
 int main() {
 
-	test_lex();
-	//test_operators();
-
-	//sort_tokens();
-	//print_tokens();
-
-	//
-
-	printf("Reading alll tokens\n");
-	read_token();
+	
+	test_func();
 
 	return 0;
 	

@@ -19,6 +19,7 @@ struct token_type {
 
     int REL_OP = 3;
     int LOG_OP = 4;
+    int ASS_OP = 13
 
     int RIGHT_PARENTHESES = 5;
     int LEFT_PARENTHESES = 6;
