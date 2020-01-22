@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-
 struct lexeme {
 
 	int row;
@@ -61,17 +60,6 @@ char** KEYWORDS() {
 
 }
 
-int is_identifier(char* word) {
-
-	int identifier = 0;
-
-	int len = strlen(word);
-
-	for(int i = 0; i < len; i++) {
-
-	}
-}
-
 Lex** is_operator(char* buffer, int line_num, int size) {
 
 	Lex** lex = (Lex**) malloc(sizeof(Lex*) * 20);
@@ -121,6 +109,16 @@ Lex** is_operator(char* buffer, int line_num, int size) {
 			}
 		}
 
+		if(buffer[i] == '!') {
+
+			if(buffer[i + 1] != '=' && isalnum(buffer[i + 1]))
+				create_lexeme(line_num, offset, "LOGICAL OPERATOR", "!");
+
+			else 
+				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "!=");
+
+		}
+
 	}
 
 	return lex;
@@ -146,28 +144,30 @@ Lex** is_special(char* buffer, int line_num, int size) {
 
 		if(buffer[i] == ';') {
 			create_lexeme(line_num, offset, "SPECIAL", ";");
-			
-
 		}
 
-		if(buffer[i] == '<') {
-
-			if(buffer[i + 1] == '=') {
-				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<=");
-
-			} else {
-				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<");				
-			}
+		if(buffer[i] == ')') {
+			create_lexeme(line_num, offset, "RB", ")");
 		}
 
-		if(buffer[i] == '>') {
+		if(buffer[i] == '(') {
+			create_lexeme(line_num, offset, "LB", "(");
+		}
 
-			if(buffer[i + 1] == '=') {
-				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<=");
+		if(buffer[i] == '{') {
+			create_lexeme(line_num, offset, "LC", "{");
+		}
 
-			} else {
-				create_lexeme(line_num, offset, "RELATIONAL OPERATOR", "<");				
-			}
+		if(buffer[i] == '}') {
+			create_lexeme(line_num, offset, "RC", "}");
+		}
+
+		if(buffer[i] == '[') {
+			create_lexeme(line_num, offset, "LP", "[");
+		}
+
+		if(buffer[i] == ']') {
+			create_lexeme(line_num, offset, "RP", "]");
 		}
 
 	}
@@ -206,6 +206,40 @@ Lex* check_keyword(char* str, char** KEYS, size_t KEY_LEN, int line_num) {
 		return NULL;
 
 	return lex;
+}
+
+void find_indices_of(char* buffer, int size, int* indices, char item, int *length_indices) {
+
+	int k = 0;
+
+	for(int i = 0; i < size; i++) {
+
+		if(buffer[i] == item) {
+			indices[k++] = i;
+		}
+
+	}
+	
+	*length_indices = k;
+}
+
+void check_string_literals(char* buffer, int line, int size) {
+
+	int* indices = (int*) malloc(sizeof(int) * 10);
+	int num_indices;
+
+	find_indices_of(buffer, size, indices, '"', &num_indices);
+
+	for(int i = 0; i < num_indices - 1; i++) {
+		char str[100];
+		int k = 0;
+
+		for(int j = indices[i] + 1; j < indices[i + 1]; j++) {
+			str[k++] = buffer[j];
+		}
+
+		create_lexeme(line, indices[i], "LITERAL", str);
+	}
 }
 
 #endif

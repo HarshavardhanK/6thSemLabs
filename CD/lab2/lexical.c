@@ -46,6 +46,8 @@ void test_operators() {
 
         	line++;
         	lex = is_operator(buffer, line, n);
+			is_special(buffer, line, n);
+			check_string_literals(buffer, line, n);
         	
         	n = 0;
 
