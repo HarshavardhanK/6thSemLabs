@@ -1,88 +1,37 @@
-
-#include <mpi.h>
+#include "mpi.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
-void cross(char* str, char* str2, char* cross_) {
-	int len = strlen(str);
-
-	//char* cross_ = (char*) malloc(sizeof(char) * len * 2);
-
-	int k = 0;
-	int j = 0;
-
-	for(int i = 0; i < 2 * len; i++) {
-
-		if(i % 2 == 0) {
-			cross_[i] = str[k++];
-
-		} else {
-			cross_[i] = str2[j++];
-		}
+int main(int argc, char const *argv[])
+{
+	int rank,size,n;
+	MPI_Init(&argc,&argv);
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&size);
+	char str1[100],str2[100],r_str1[100],r_str2[100],r_comb[100];
+	if (rank == 0) {
+		fprintf(stdout, "Enter 2 strings: ");
+		fflush(stdout);
+		scanf("%s",str1);
+		scanf("%s",str2);
+		n = strlen(str1)/size;
 	}
-
-}
-
-int main() {
-
-	char str[100];
-	char temp[100];
-
-	int arr[20];
-
-	int num_proc;
-	int proc_id;
-
-	int m;
-
-	MPI_Init(NULL, NULL);
-	MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-	MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);
-
-	if(!proc_id) {
-
-		printf("Enter string 1: ");
-		scanf("%s", str);
-
-		printf("Enter string 2: ");
-		scanf("%s", temp);
-
-		char* cross_ = (char*) malloc(sizeof(char) * 2 * strlen(str));
-
-		cross(str, temp, cross_);
-
-		printf("%s\n", cross_);
-		
-
-		if(strlen(str) % num_proc != 0) {
-			return -1;
-		}
-
-		m = strlen(str) / num_proc;
+	MPI_Bcast(&n,1,MPI_INT,0,MPI_COMM_WORLD);
+	MPI_Scatter(str1,n,MPI_CHAR,r_str1,n,MPI_CHAR,0,MPI_COMM_WORLD);
+	MPI_Scatter(str2,n,MPI_CHAR,r_str2,n,MPI_CHAR,0,MPI_COMM_WORLD);
+	char comb[2*n];
+	for (int i = 0; i < 2 * n; i++) {
+		if (i % 2 == 0)
+			comb[i] = r_str1[i/2];
+		else
+			comb[i] = r_str2[i/2];
 	}
-
-	//MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-	/*MPI_Scatter(&str, 1, MPI_CHAR, &temp, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
-
-	//int vows = vowels(temp, m);
-
-	MPI_Gather(&vows, 1, MPI_INT, arr, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
-
-	if(proc_id == 0) {
-		int vows_ = 0;
-
-		for(int i = 0; i < num_proc; i++) {
-			vows_ += arr[i];
-		}
-
-		printf("No. of non-vowels: %d\n", vows_);
-	}*/
-
+	MPI_Gather(comb,2*n,MPI_CHAR,r_comb,2*n,MPI_CHAR,0,MPI_COMM_WORLD);
+	if (rank == 0) {
+		fprintf(stdout, "The final string is %s\n", r_comb);	
+		fflush(stdout);
+	}
 	MPI_Finalize();
-
 	return 0;
-
-
 }
