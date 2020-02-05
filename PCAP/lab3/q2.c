@@ -39,6 +39,9 @@ int main() {
 			scanf("%f", &arr[i]);
 		}
 
+		//MPI_Bcast(&m , 1, MPI_INT, 0, MPI_COMM_WORLD);
+		//MPI_Scatter(&arr, m, MPI_FLOAT, &temp_arr, m, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
 	}
 
 	MPI_Bcast(&m , 1, MPI_INT, 0, MPI_COMM_WORLD);
