@@ -214,12 +214,21 @@ void check_string_literals(char* buffer, int line, int size) {
 
 #include "../lab3/symbol_table.h"
 
+void print_buffer(char* buff, int size) {
+
+	for(int i = 0; i < size; i++) {
+		printf("%c", buff[i]);
+	}
+}
+
 int has_function(char* buffer, int size) {
 
 	int is_function = 0;
 
 	int start = -1;
 	int end = -1;
+
+	print_buffer(buffer, size);
 
 	for(int i = 0; i < size; i++) {
 
@@ -236,20 +245,15 @@ int has_function(char* buffer, int size) {
 	int args = 0;
 
 	if(start != -1 && end != -1) {
+		args++;
+	}
+
+	if(start != -1 && end != -1) {
 
 		for(int i = start; i < end; i++) {
 			if(buffer[i] == ',') {
 				args++;
 			}
-		}
-
-		if(!args) {
-
-		} else {
-
-			args++;
-			//printf("Args: %d\n", args);
-
 		}
 
 		int name_begin = start;
@@ -291,7 +295,7 @@ int has_function(char* buffer, int size) {
 		//TODO: 1. CHECK IF RETURN TYPE IS VALID KEYWORD FROM THE LIST OF KEYWORDS
 		//TODO: 2. Get the names of the identifiers in arguments (Go between the commas)
 
-		STE entry = create_entry("", name, 0, args, return_type);
+		STE entry = create_entry("func", name, 0, args, return_type);
 
 		//mark is_function variable true to indicate the buffer had a function
 		//return that  value from the function. If it weren't a function
@@ -310,35 +314,47 @@ int has_function(char* buffer, int size) {
 
 int is_variable(char* buffer, int size) {
 
-	for(int i = 0; i < size; i++) {
-		printf("%c", buffer[i]);
-	}
-	int space_index; //ONLY DECLARATION IS CONSIDERED IN THIS APPROACH
+	int type_index; //ONLY DECLARATION IS CONSIDERED IN THIS APPROACH
 
 	//TODO: SEARCH THE SYMBOL TABLE FOR THE IDENTIFIER
+	print_buffer(buffer, size);
 
 	for(int i = 0; i < size; i++) {
 
-		if(buffer[i] == ' ') {
-			space_index = i;
+		//printf("%c", buffer[i]);
+
+		if(isalpha(buffer[i])) {
+
+			type_index = i;
 			break;
 		}
 	}
 
 	char identifier[20]; int identifier_index = 0;
-	char type[10];
+	char type[10]; int type_name_index = 0;
 
 	//Get the return type of the variable. Return type index begins at 0 of the buffer, and
 	// goes till space_index
-	for(int i = 1; i < space_index; i++) {
-		type[i] = buffer[i];
+	for(int i = type_index; buffer[i] != ' '; i++) {
+		if(buffer[i] != '\n' && buffer[i] != '\t' && buffer[i] != ' ')
+			type[type_name_index++] = buffer[i];
 	}
 
-	for(int i = space_index; i < size; i++) {
+	type[type_name_index] = '\0';
+	int variable_name_begin = strlen(type) + type_index + 1;
+
+	for(int i = variable_name_begin; buffer[i] != ';'; i++) {
 		identifier[identifier_index++] = buffer[i];
 	}
 
-	printf("\nType: %s\tName: %s\n", type, identifier);
+	identifier[identifier_index] = '\0';
+
+	STE entry = create_entry("identifier", identifier, 4, 0, type);
+	print_entry(entry);
+
+	//printf("Type: %s\n", type);
+
+	//printf("\nType: %s | identifier name: %s\n", type, identifier);
 }
 
 #endif

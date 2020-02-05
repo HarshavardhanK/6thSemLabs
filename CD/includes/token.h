@@ -39,6 +39,8 @@ Lex* create_lexeme(int row, int col, char* name, char* item) {
 	strcpy(lex->name, name);
 	strcpy(lex->item_name, item);
 
+	print_lexeme(*lex);
+
 	//lex->_token_type =
 
 	return lex;

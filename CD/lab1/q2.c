@@ -4,19 +4,40 @@
 
 void remove_preprocessor(char* str, char* result) {
 
-	if(str[0] == '#') {
-		strcpy(result, "");
+	for(int i = 0; i < strlen(str); i++) {
+		//printf("%c", str[i]);
+		if(str[i] == '#') {
+			strcpy(result, "");
+			return;
+		}
 
-	} else {
-		strcpy(result, str);
+		//strcpy(result, "");
 	}
+
+	strcpy(result, str);
 
 }
 
-void read_file(char* PATH, char* OUTPUT_PATH) {
+void remove_comments(char* str, char* result) {
 
-	FILE* fp = fopen(PATH, "r+");
-	FILE* fp1 = fopen(OUTPUT_PATH, "w+");
+
+	for(int i = 0; i < strlen(str); i++) {
+
+		if(str[i] == '/' || str[i] == '/') {
+			strcpy(result, "");
+			return;
+		}
+	}
+
+	strcpy(result, str);
+
+}
+
+
+void remove_pre(char* PATH, char* OUTPUT_PATH) {
+
+	FILE* fp = fopen(PATH, "r");
+	FILE* fp1 = fopen(OUTPUT_PATH, "w");
 
 	char* line = (char*) malloc(sizeof(char) * 200);
 	size_t len = 0;
@@ -28,6 +49,29 @@ void read_file(char* PATH, char* OUTPUT_PATH) {
 	while((read = getline(&line, &len, fp)) != -1) {
 
 		remove_preprocessor(line, res);
+		//remove_comments(line, res);
+		fputs(res, fp1);
+
+	}
+
+}
+
+
+void _comments(char* PATH, char* OUTPUT_PATH) {
+
+	FILE* fp = fopen(PATH, "r");
+	FILE* fp1 = fopen(OUTPUT_PATH, "w");
+
+	char* line = (char*) malloc(sizeof(char) * 200);
+	size_t len = 0;
+
+	int read;
+
+	char* res = (char*) malloc(sizeof(char) * 200);
+
+	while((read = getline(&line, &len, fp)) != -1) {
+
+		remove_comments(line, res);
 		fputs(res, fp1);
 
 	}
@@ -36,7 +80,9 @@ void read_file(char* PATH, char* OUTPUT_PATH) {
 
 int main() {
 
-	read_file("./q1.c", "./sample_output_q1.c");
+	_comments("./eval_ques.c", "../eval.c");
+	remove_pre("../eval.c", "../eval2.c");
+	
 
 	return 0;
 

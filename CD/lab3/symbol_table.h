@@ -36,7 +36,7 @@ STE create_entry(char type[10], char name[100], int size, int args, char ret_typ
 }
 
 void print_entry(STE entry) {
-	printf("%s\t%s\t%d\n", entry.return_type, entry.name, entry.args);
+	printf("%s\t%s\t%d\t%d\t%s\n", entry.type, entry.name, entry.args, entry.size, entry.return_type);
 }
 
 

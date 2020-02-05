@@ -4,7 +4,7 @@
 void test_lex() {
 
 	char** KEYS = KEYWORDS();
-	FILE* fp = fopen("./recog.h", "r");
+	FILE* fp = fopen("../eval.c", "r");
 
 	char* line = (char*) malloc(sizeof(char) * 300);
 	size_t len = 0;
@@ -32,7 +32,7 @@ void test_operators() {
 
 	Lex** lex;// = is_operator
 
-	FILE* fp = fopen("./recog.h", "r");
+	FILE* fp = fopen("./eval.c", "r");
 
 	int n = 0;
 	char c;
@@ -72,14 +72,13 @@ int test_func() {
 
 	while((c = fgetc(fp)) != EOF) {
 
-		if(c == ';') {
+		if(c == '{' || c == ';' || c == '\n') {
 
 			int func = has_function(buffer, n);
 
 			if(!func) {
 				is_variable(buffer, n);
 				//printf("Is variable\n");
-
 			}
 
 			memset(buffer, 0, sizeof(char) * n);
@@ -93,6 +92,8 @@ int test_func() {
 
 int main() {
 
+	//test_lex();
+	//test_operators();
 	
 	test_func();
 
