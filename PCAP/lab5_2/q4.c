@@ -1,5 +1,5 @@
 #include<stdio.h>
-#include<OpenCL/opencl.h>
+#include<CL/cl.h>
 #include<stdlib.h>
 
 #define MAX_SOURCE_SIZE 0x100000

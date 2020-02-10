@@ -1,6 +1,4 @@
 
-#ifndef RECOG_H
-#define RECOG_H
 
 #include <stdio.h>
 #include <string.h>
@@ -17,9 +15,9 @@ char** KEYWORDS() {
 		KEYS[i] = (char*) malloc(sizeof(char) * 10);
 	} 
 
-	strcpy(KEYS[0], "int");
+	strcpy(KEYS[0], "Int");
 	strcpy(KEYS[1], "class");
-	strcpy(KEYS[2], "string");
+	strcpy(KEYS[2], "String");
 	strcpy(KEYS[3], "concat");
 
 	return KEYS;
@@ -134,6 +132,8 @@ Lex* check_keyword(char* str, char** KEYS, size_t KEY_LEN, int line_num) {
 			char* res = (char*) malloc(sizeof(char) * strlen(KEYS[i]));
 
 			strcpy(key_name, KEYS[i]);
+
+			//printf("%s\n", key_name);
 
 			col = pos - str + 4;
 
@@ -331,4 +331,127 @@ int is_variable(char* buffer, int size) {
 	//printf("\nType: %s | identifier name: %s\n", type, identifier);
 }
 
-#endif
+//#include "recog.h"
+#include "../includes/token_store.h"
+
+void test_lex() {
+
+	char** KEYS = KEYWORDS();
+	FILE* fp = fopen("./input2.cpp", "r");
+
+	//printf("Work\n");
+
+	char* line = (char*) malloc(sizeof(char) * 300);
+	size_t len = 0;
+
+	int read = 0;
+
+	int line_num = 0;
+
+	while((read = getline(&line, &len, fp)) != -1) {
+		line_num++;
+		Lex *lex = check_keyword(line, KEYS, 4, line_num);
+		//print_lexeme(*lex);
+		//insert_token();
+
+		if(lex) {
+			insert_token(lex);
+		}
+
+	}
+
+
+}
+
+void test_operators() {
+
+	Lex** lex;// = is_operator
+
+	FILE* fp = fopen("./input2.cpp", "r");
+
+	//printf("Work\n");
+
+	int n = 0;
+	char c;
+
+	char* buffer = (char*) malloc(sizeof(char) * 200);
+
+	int line = 0;
+
+	while ((c = fgetc(fp)) != EOF) {
+
+        if(c == '\n') {
+
+        	line++;
+        	lex = is_operator(buffer, line, n);
+			is_special(buffer, line, n);
+			check_string_literals(buffer, line, n);
+        	
+        	n = 0;
+
+        } else {
+        	buffer[n++] = c;
+        }
+
+    }
+
+
+}
+
+void remove_comments(char* str, char* result) {
+
+
+	for(int i = 0; i < strlen(str); i++) {
+
+		if(str[i] == '-' && str[i + 1] == '-') {
+			strcpy(result, "");
+			return;
+		}
+	}
+
+	strcpy(result, str);
+
+}
+
+void _comments(char* PATH, char* OUTPUT_PATH) {
+
+	FILE* fp = fopen(PATH, "r");
+	FILE* fp1 = fopen(OUTPUT_PATH, "w");
+
+	char* line = (char*) malloc(sizeof(char) * 200);
+	size_t len = 0;
+
+	int read;
+
+	char* res = (char*) malloc(sizeof(char) * 200);
+
+	while((read = getline(&line, &len, fp)) != -1) {
+
+		remove_comments(line, res);
+		fputs(res, fp1);
+
+	}
+
+	fclose(fp);
+	fclose(fp1);
+
+}
+
+
+int main() {
+
+	_comments("./input.cpp", "./input2.cpp");
+
+	printf("\nKEYWORDS\n\n");
+
+	test_lex();
+
+	printf("\nOPERATORS\n\n");
+
+	test_operators();
+	
+	//test_func();
+
+	return 0;
+	
+}
