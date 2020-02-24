@@ -1,32 +1,39 @@
 
+
 #include <stdio.h>
 #include <CL/cl.h>
 #include <stdlib.h>
 
-//#include <OpenCL/cl.h>
-
 //Max source size of the kernel string
 #define MAX_SOURCE_SIZE (0x100000)
+
+int bin(int num) {
+	int r;
+	int mul = 1;
+	int b = 0;
+	while (num > 0) {
+		r = num % 2;
+		num = num / 2;
+		b += r * mul;
+		mul *= 10;
+	}
+	return b;
+}
 
 int main(void) {
 	//Create the two input vectors
 	int i;
 
 	int LIST_SIZE;
-	printf("Size:");
+	printf("Enter how many elements:");
 	scanf("%d",&LIST_SIZE);
 
 	int * A = (int *)malloc(sizeof(int) * LIST_SIZE);
 
 	//Initialize the input vectors
 	for (i = 0; i < LIST_SIZE; i++) {
-		A[i] = LIST_SIZE - i;
+		A[i] = bin(i);
 	}
-
-	for (i = 0; i < LIST_SIZE; i++) {
-		printf("%d ",A[i]);
-	}	
-	printf("\n");
 
 	//Load the kernel source code into the array source_str
 	FILE *fp;
@@ -74,12 +81,11 @@ int main(void) {
 	ret = clBuildProgram(program,1,&device_id,NULL,NULL,NULL);
 
 	//Create the OpenCL kernel object
-	cl_kernel kernel = clCreateKernel(program,"sort",&ret);
+	cl_kernel kernel = clCreateKernel(program,"invert_binary",&ret);
 
 	//Set the arguments of the kernel
 	ret = clSetKernelArg(kernel,0,sizeof(cl_mem),(void *)&a_mem_obj);
 	ret = clSetKernelArg(kernel,1,sizeof(cl_mem),(void *)&c_mem_obj);
-
 
 	//Execute the OpenCL kernel on the array
 	size_t global_item_size = LIST_SIZE;
@@ -91,24 +97,25 @@ int main(void) {
 
 	ret = clFinish(command_queue);
 
-	int * C = (int *)malloc(sizeof(int) * LIST_SIZE);
-
 	//read the mem buffer C on the device to the local variable C
+	int *C = (int *)malloc(sizeof(int) * LIST_SIZE);
 	ret = clEnqueueReadBuffer(command_queue,c_mem_obj,CL_TRUE,0,LIST_SIZE * sizeof(int),C,0,NULL,NULL);
 
 	//Display the result to the screen
 	for (i = 0; i < LIST_SIZE; i++)
-		printf("%d ",C[i]);
+		printf("%d -> %d\n",A[i],C[i]);
 
 	//Clean up
 	ret = clFlush(command_queue);
 	ret = clReleaseKernel(kernel);
 	ret = clReleaseProgram(program);
 	ret = clReleaseMemObject(a_mem_obj);
+	ret = clReleaseMemObject(c_mem_obj);
 	ret = clReleaseCommandQueue(command_queue);
 	ret = clReleaseContext(context);
 
 	free(A);
+	free(C);
 	getchar();
 	return 0;
 }

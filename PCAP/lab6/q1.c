@@ -1,8 +1,8 @@
 
 #include <stdio.h>
-//#include <CL/cl.h>
+#include <CL/cl.h>
 #include <stdlib.h>
-#include <OpenCL/cl.h>
+//#include <OpenCL/cl.h>
 
 //Max source size of the kernel string
 #define MAX_SOURCE_SIZE (0x100000)

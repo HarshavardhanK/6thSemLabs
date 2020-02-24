@@ -1,4 +1,3 @@
-// A complete program for vector addition
 
 #include <stdio.h>
 #include <CL/cl.h>
@@ -6,19 +5,6 @@
 
 //Max source size of the kernel string
 #define MAX_SOURCE_SIZE (0x100000)
-
-int bin(int num) {
-	int r;
-	int mul = 1;
-	int b = 0;
-	while (num > 0) {
-		r = num % 2;
-		num = num / 2;
-		b += r * mul;
-		mul *= 10;
-	}
-	return b;
-}
 
 int main(void) {
 	//Create the two input vectors
@@ -32,7 +18,7 @@ int main(void) {
 
 	//Initialize the input vectors
 	for (i = 0; i < LIST_SIZE; i++) {
-		A[i] = bin(i);
+		A[i] = i; //if LIST_SIZE is very large
 	}
 
 	//Load the kernel source code into the array source_str
@@ -40,7 +26,7 @@ int main(void) {
 	char * source_str;
 	size_t source_size;
 
-	fp = fopen("q2.cl","r");
+	fp = fopen("q1.cl","r");
 
 	if (!fp) {
 		fprintf(stderr,"Failed to load kernel\n");
@@ -81,7 +67,7 @@ int main(void) {
 	ret = clBuildProgram(program,1,&device_id,NULL,NULL,NULL);
 
 	//Create the OpenCL kernel object
-	cl_kernel kernel = clCreateKernel(program,"invert_binary",&ret);
+	cl_kernel kernel = clCreateKernel(program,"decimal_to_octal",&ret);
 
 	//Set the arguments of the kernel
 	ret = clSetKernelArg(kernel,0,sizeof(cl_mem),(void *)&a_mem_obj);
