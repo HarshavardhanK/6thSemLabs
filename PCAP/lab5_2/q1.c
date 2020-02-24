@@ -40,7 +40,7 @@ int main(){
 
 	if(!fp){
 
-		fprintf(stderr, "Failed to load the Kernelos Bestos.\n");
+		fprintf(stderr, "Failed to load the kernel\n");
 		getchar();
 		exit(1);
 	}

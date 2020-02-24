@@ -1,23 +1,13 @@
-__kernel void vector_to_octal(__global int *A, __global int *B){
-
+__kernel void invert_binary(__global int * A, __global int * C) {
+	//Get the index of the current work item
 	int i = get_global_id(0);
-	int n = A[i];
-
-	int octalNum = 0; 
-
-    while (n != 0) { 
-  
-        octalNum = (octalNum * 10) + (n % 8); 
-        n = n / 8;
-    } 
-
-    int sec = octalNum;
-    octalNum = 0;
-
-    while(sec!=0){
-    	octalNum = (octalNum*10) + (sec%10);
-    	sec/=10;
-    }
-
-    B[i] = octalNum;
+	//Do the operation
+	int mul = 1;
+	C[i] = 0;
+	do {
+		int r = A[i] % 10;
+		A[i] = A[i] / 10;
+		C[i] += (1 ^ r) * mul;
+		mul *= 10;
+	} while (A[i] > 0);
 }

@@ -32,14 +32,7 @@ int main(int argc, char *argv[]){
 
 	char comb[2*n + 1];
 
-	//printf("%s\n", r_str1);
-	//printf("%s\n", r_str2);
-
 	for (int i = 0; i < n; i++) {
-		/*if (i % 2 == 0)
-			comb[i] = r_str1[i/2];
-		else
-			comb[i] = r_str2[i/2];*/
 		comb[2 * i] = r_str1[i];
 		comb[2 * i + 1] = r_str2[i];
 	}

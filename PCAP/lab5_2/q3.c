@@ -1,133 +1,108 @@
-#include<stdio.h>
-#include<OpenCL/opencl.h>
-#include<stdlib.h>
+// A complete program for vector addition
 
-#define MAX_SOURCE_SIZE 0x100000
+#include <stdio.h>
+#include <CL/cl.h>
+#include <stdlib.h>
 
-int power(int base, int power){
+//Max source size of the kernel string
+#define MAX_SOURCE_SIZE (0x100000)
 
-	int num = 1;
-
-	while(power--){
-		num = num*base;
-	}
-
-	return num;
-}
-
-int decToBinary(int n) 
-{ 
-    
-    int binary = 0; 
-    int i=0;
-
-    while (n > 0) { 
-  
-  		int num = power(10, i) * (n % 2);
-        binary = binary + num;
-        n = n / 2; 
-        i++;
-    }
-
-    return binary;
-} 
-
-int main(){
-
+int main(void) {
 	//Create the two input vectors
-
 	int i;
+
 	int LIST_SIZE;
+	printf("Enter how many elements:");
+	scanf("%d",&LIST_SIZE);
 
-	printf("%s: ", "Enter List Size: ");
-	scanf("%d", &LIST_SIZE);
+	int * A = (int *)malloc(sizeof(int) * LIST_SIZE);
 
-	// Initialize the decimal vector
-
-	int *A = (int*)malloc(sizeof(int) * LIST_SIZE);
-
-	for(int i=0;i<LIST_SIZE;i++){
-
-		A[i] = decToBinary(i);
+	//Initialize the input vectors
+	for (i = 0; i < LIST_SIZE; i++) {
+		A[i] = i;
 	}
 
-	// Load the kernel source code into the array source_str
+	for (i = 0; i < LIST_SIZE; i++) {
+		printf("%d ",A[i]);
+	}	
+	printf("\n");
 
+	//Load the kernel source code into the array source_str
 	FILE *fp;
-	char *source_str;
+	char * source_str;
 	size_t source_size;
 
-	fp = fopen("q3.cl", "r");
+	fp = fopen("q3.cl","r");
 
-	if(!fp){
-
-		fprintf(stderr, "Failed to load the Kernelos Bestos.\n");
+	if (!fp) {
+		fprintf(stderr,"Failed to load kernel\n");
 		getchar();
 		exit(1);
 	}
-
-	source_str = (char*)malloc(MAX_SOURCE_SIZE);
-	source_size = fread(source_str, 1, MAX_SOURCE_SIZE, fp);
+	source_str = (char *)malloc(MAX_SOURCE_SIZE);
+	source_size = fread(source_str,1,MAX_SOURCE_SIZE,fp);
 
 	fclose(fp);
 
-	// Get platform and device information
-
+	//Get platform and device information
 	cl_platform_id platform_id = NULL;
 	cl_device_id device_id = NULL;
 	cl_uint ret_num_devices;
 	cl_uint ret_num_platforms;
 
-	cl_int ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
-	ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, 1, &device_id, &ret_num_devices);
+	cl_int ret = clGetPlatformIDs(1,&platform_id,&ret_num_platforms);
+	ret = clGetDeviceIDs(platform_id,CL_DEVICE_TYPE_GPU,1,&device_id,&ret_num_devices);
 
-	cl_context context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &ret);
-	cl_command_queue command_queue = clCreateCommandQueue(context, device_id, NULL, &ret);
+	//Create an OpenCL context
+	cl_context context = clCreateContext(NULL,1,&device_id,NULL,NULL,&ret);
 
-	cl_mem a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY, LIST_SIZE * sizeof(int), NULL, &ret);
-	cl_mem b_mem_obj = clCreateBuffer(context, CL_MEM_WRITE_ONLY, LIST_SIZE * sizeof(int), NULL, &ret);
+	//Create a command queue
+	cl_command_queue command_queue = clCreateCommandQueue(context,device_id,NULL,&ret);
 
-	ret = clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0, LIST_SIZE * sizeof(int), A, 0, NULL, NULL);
+	//Create memory buffers on the device for each vector A,B and C
+	cl_mem a_mem_obj = clCreateBuffer(context,CL_MEM_READ_WRITE,LIST_SIZE * sizeof(int),NULL,&ret);
 
-	cl_program program = clCreateProgramWithSource(context, 1, (const char **)&source_str, (const size_t*) &source_size, &ret);
+	//Copy the lists A and B to their respective mem buffers
+	ret = clEnqueueWriteBuffer(command_queue,a_mem_obj,CL_TRUE,0,LIST_SIZE * sizeof(int),A,0,NULL,NULL);
 
-	ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
-	
-	// Create OpenCL Kernel Object
-	cl_kernel kernel = clCreateKernel(program, "vector_complement", &ret);
+	//Create a program from the kernel source
+	cl_program program = clCreateProgramWithSource(context,1,(const char **)&source_str,(const size_t *)&source_size, &ret);
 
-	// Set the arguments of the Kernel
-	ret = clSetKernelArg(kernel, 0, sizeof(cl_mem), (void*) &a_mem_obj);
-	ret = clSetKernelArg(kernel, 1, sizeof(cl_mem), (void*) &b_mem_obj);
+	//Build the program
+	ret = clBuildProgram(program,1,&device_id,NULL,NULL,NULL);
 
-	// Execute the OpenCL Kernel on the array
-	size_t global_item_size = LIST_SIZE;
+	//Create the OpenCL kernel object
+	cl_kernel kernel = clCreateKernel(program,"swap",&ret);
+
+	//Set the arguments of the kernel
+	ret = clSetKernelArg(kernel,0,sizeof(cl_mem),(void *)&a_mem_obj);
+
+	//Execute the OpenCL kernel on the array
+	size_t global_item_size = LIST_SIZE / 2;
 	size_t local_item_size = 1;
 
-	// Execute the Kernel on the device
+	//Execute the kernel on the device
 	cl_event event;
-	ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_item_size, &local_item_size, 0, NULL, NULL);
+	ret = clEnqueueNDRangeKernel(command_queue,kernel,1,NULL,&global_item_size,&local_item_size,0,NULL,NULL);
+
 	ret = clFinish(command_queue);
 
-	int *B = (int*) malloc(sizeof(int) * LIST_SIZE);
-	ret = clEnqueueReadBuffer(command_queue, b_mem_obj, CL_TRUE, 0, LIST_SIZE * sizeof(int), B, 0, NULL, NULL);
+	//read the mem buffer C on the device to the local variable C
+	ret = clEnqueueReadBuffer(command_queue,a_mem_obj,CL_TRUE,0,LIST_SIZE * sizeof(int),A,0,NULL,NULL);
 
-	for(int i=0;i<LIST_SIZE;i++){
-		printf("%d -> %d\n", A[i], B[i]);
-	}
+	//Display the result to the screen
+	for (i = 0; i < LIST_SIZE; i++)
+		printf("%d ",A[i]);
 
-	//Clean Up
+	//Clean up
 	ret = clFlush(command_queue);
 	ret = clReleaseKernel(kernel);
 	ret = clReleaseProgram(program);
 	ret = clReleaseMemObject(a_mem_obj);
-	ret = clReleaseMemObject(b_mem_obj);
 	ret = clReleaseCommandQueue(command_queue);
 	ret = clReleaseContext(context);
 
 	free(A);
-	free(B);
 	getchar();
-
 	return 0;
 }

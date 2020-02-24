@@ -2,6 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void error_handler(int code) {
+
+	if(code != MPI_SUCCESS) {
+		char str[BUFSIZ];
+		int err_len = 0;
+
+		MPI_Error_string(code, str, &err_len);
+
+		printf("%s\n", str);
+	}
+}
+
+
 int occurences(int* arr, int key, int size) {
 	int count = 0;
 
@@ -47,7 +60,8 @@ int main(int argc, char** argv) {
 
 	int rows[3]; int count;
 
-	MPI_Scatter(matrix, 3, MPI_INT, rows, 3, MPI_INT, 0, MPI_COMM_WORLD);
+	int error = MPI_Scatter(matrix, 3, MPI_INT, rows, 3, MPI_INT, 0, MPI_COMM_WORLD);
+	error_handler(error);
 
 	int occ = occurences(rows, num, 3);
 

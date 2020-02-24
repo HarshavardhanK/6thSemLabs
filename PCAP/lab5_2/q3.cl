@@ -1,14 +1,9 @@
-__kernel void vector_complement(__global int *A, __global int *B){
-
-	int i = get_global_id(0);
-	int n = A[i];
-
-    int dec = 0, i = 0, rem;
-    while (n != 0) {
-        rem = n % 10;
-        dec = (dec*10) + rem;
-        n = n/10;
-    } 
-
-    B[i] = dec;
+__kernel void swap(__global int * A) {
+	//Get the index of the current work item
+	int id = get_global_id(0);
+	//Do the operation
+	id *= 2;
+	int temp = A[id];
+	A[id] = A[id + 1];
+	A[id + 1] = temp;
 }
