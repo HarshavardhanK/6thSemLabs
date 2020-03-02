@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void operation(int rank, int curr_index, char* res_buf, char char_at) {
+void operation(int rank, char* res_buf, char char_at) {
     int i;
     for(i = 0; i <= rank; i++) {
         res_buf[i] = char_at;
@@ -38,10 +38,9 @@ int main() {
 
     char char_at;
     MPI_Scatter(str, 1, MPI_CHAR, &char_at, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
-    int curr_ind = (rank) * (rank + 1) / 2;
-    printf("Curr ind = %d | char at = %c | at process %d\n", curr_ind, char_at, rank);
+    printf(" char at = %c | at process %d\n", char_at, rank);
 
-    operation(rank, curr_ind, recv_str, char_at);
+    operation(rank, recv_str, char_at);
 
     MPI_Gather(recv_str, rank + 1, MPI_CHAR, output, rank + 1, MPI_CHAR, 0, MPI_COMM_WORLD);
 
