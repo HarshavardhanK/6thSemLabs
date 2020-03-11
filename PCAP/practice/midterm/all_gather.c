@@ -97,6 +97,8 @@ void char_gather() {
     char output[20];
     char c;
 
+    double start = MPI_Wtime();
+
     if(!rank) {
 
         strcpy(str, "Hell");
@@ -110,10 +112,13 @@ void char_gather() {
     err |= MPI_Gather(&m, 1, MPI_CHAR, output, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
     error_handler(err);
 
+    double end = MPI_Wtime();
+
     if(!rank) {
         output[size] = '\0';
 
         printf("Original string: %s | Output string: %s\n", str, output);
+        printf("Time takenn is %fs\n", (end-start));
     }
 
     MPI_Finalize();
